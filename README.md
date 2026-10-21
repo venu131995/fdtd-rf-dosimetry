@@ -9,7 +9,7 @@ standard system-validation set-up used by SAR laboratories, with the remaining e
 |---|---|
 | Does the solver reproduce an exact solution? | Head-tissue sphere (radius 50 mm; 3GPP TS 34.114 head targets: eps_r 41.5, sigma 0.97 S/m at 900 MHz; 40.0, 1.40 S/m at 1800 MHz) in a 1 V/m plane wave, against Mie theory: interior field **3.7 %, 2.9 %, 2.4 %** relative L2 error at 5, 3.3 and 2.5 mm cells (900 MHz); **2.7 %, 1.8 %** at 1800 MHz and 2.5, 1.67 mm. Absorbed power +6.1 %, +5.3 %, **+3.9 %** (900 MHz); +1.7 %, +2.1 % (1800 MHz). |
 | Why not faster convergence? | The sphere is staircased onto the cubic grid, a first-order error at the surface where the field is strongest; conformal or sub-cell averaging would be the next step. |
-| IEEE 1528 system validation | Dipole of length 149-150 mm with a one-cell gap feed, axis 15 mm above a flat phantom (2 mm shell, eps_r 3.7; head liquid 41.5 / 0.97 S/m; 0.4 x 0.6 wavelength, 150 mm deep), 900 MHz, normalised to 1 W accepted power: **1 g peak spatial-average SAR 10.93, 10.76, 10.58 W/kg** at 3, 2.5 and 2 mm cells against the 10.8 W/kg target (**+1.2 %, -0.4 %, -2.0 %**, all within the 10 % validation tolerance); 10 g 6.87, 6.65, 6.75 W/kg (5 mm cells give 9.78 W/kg). The input impedance moves with the cell size (48.6 - j9.8, 46.7 - j1.1, 42.1 + j19.1 Ohm), because the one-cell feed gap and the wire radius shrink with the grid; the SAR per accepted watt is much less sensitive. |
+| IEEE 1528 system validation | Dipole of nominal length 149 mm with a one-cell gap feed (on the grid the wire spans a whole number of cells: 153, 152.5 and 150 mm at 3, 2.5 and 2 mm cells), axis 15 mm above a flat phantom (2 mm shell, eps_r 3.7; head liquid 41.5 / 0.97 S/m; 0.4 x 0.6 wavelength, 150 mm deep), 900 MHz, normalised to 1 W accepted power: **1 g peak spatial-average SAR 10.93, 10.76, 10.58 W/kg** at 3, 2.5 and 2 mm cells against the 10.8 W/kg target (**+1.2 %, -0.4 %, -2.0 %**, all within the 10 % validation tolerance); 10 g 6.87, 6.65, 6.75 W/kg (5 mm cells give 9.78 W/kg). The input impedance moves with the cell size (48.6 - j9.8, 46.7 - j1.1, 42.1 + j19.1 Ohm), because the gridded wire length, the one-cell feed gap and the wire radius all change with the grid; the SAR per accepted watt is much less sensitive. |
 | Is the plane-wave source clean? | Total-field/scattered-field leakage below 1 % of the incident field (test). |
 
 ## Solver (`src/rfdtd`)
@@ -39,9 +39,9 @@ standard system-validation set-up used by SAR laboratories, with the remaining e
 
 * Staircased geometry (first-order surface error), uniform grid, pure Python/NumPy (a 1.1 M-cell dipole run takes
   15 minutes on one core, 2.9 M cells 52 minutes); a GPU or C++ kernel and sub-cell averaging are the obvious extensions.
-* The dipole SAR does not converge monotonically to a single value (1 g: 10.93, 10.76, 10.58 W/kg): the feed gap and the
-  wire radius are tied to the cell, so each grid models a slightly different antenna. A fixed-geometry feed would
-  separate discretisation error from geometry change.
+* The dipole SAR falls steadily with refinement (1 g: 10.93, 10.76, 10.58 W/kg) instead of settling, because each grid
+  models a slightly different antenna: the wire length (153 to 150 mm), the one-cell feed gap and the wire radius are tied
+  to the cell. A fixed-length, sub-cell feed model would separate discretisation error from geometry change.
 * The wire dipole is thinner than the 3.6 mm reference dipole; the cube averaging follows the spirit of
   IEC/IEEE 62209-1528 but not every detail (no extrapolation to the phantom surface).
 * The 10 g target of IEEE 1528 is not compared here, because I could not verify its value from a primary source.
